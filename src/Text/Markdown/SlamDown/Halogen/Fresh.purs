@@ -24,7 +24,7 @@ fresh
 fresh = do
   prefix ← ask
   n ← get ∷ FreshT m Int
-  modify (_ + 1)
+  _ <- modify (_ + 1)
   pure (prefix <> "-" <> show n)
 
 runFreshT

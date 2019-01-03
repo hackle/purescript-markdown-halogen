@@ -8,8 +8,6 @@ module Text.Markdown.SlamDown.Halogen.Component.State
   , emptySlamDownState
 
   , getDocument
-  , getFormState
-  , modifyFormState
 
   , syncState
   , replaceDocument
@@ -17,8 +15,6 @@ module Text.Markdown.SlamDown.Halogen.Component.State
   , formDescFromDocument
   , formStateFromDocument
 
-  , formFieldGetDefaultValue
-  , getFormFieldValue
   ) where
 
 import Prelude
@@ -29,7 +25,7 @@ import Data.Identity as Id
 import Data.List as L
 import Data.Maybe as M
 import Data.Monoid (mempty)
-import Data.StrMap as SM
+import Foreign.Object as SM
 import Data.Tuple (Tuple(..))
 import Data.Validation.Semigroup as V
 
@@ -40,9 +36,11 @@ import Text.Markdown.SlamDown as SD
 import Text.Markdown.SlamDown.Parser.Inline as SDPI
 import Text.Markdown.SlamDown.Traverse as SDT
 
+import Foreign.Object
+
 type FormFieldValue = SD.FormFieldP Id.Identity
-type SlamDownFormDesc a = SM.StrMap (SD.FormField a)
-type SlamDownFormState a = SM.StrMap (FormFieldValue a)
+type SlamDownFormDesc a = Object (SD.FormField a)
+type SlamDownFormState a = Object (FormFieldValue a)
 
 type SlamDownStateR a =
   { document ∷ SD.SlamDownP a
@@ -62,39 +60,8 @@ instance functorSlamDownState ∷ Functor SlamDownState where
 getDocument ∷ SlamDownState ~> SD.SlamDownP
 getDocument (SlamDownState rec) = rec.document
 
-getFormState ∷ SlamDownState ~> SlamDownFormState
-getFormState (SlamDownState rec) = rec.formState
-
-modifyFormState
-  ∷ ∀ a
-  . (SlamDownFormState a → SlamDownFormState a)
-  → SlamDownState a
-  → SlamDownState a
-modifyFormState f (SlamDownState rec) =
-  SlamDownState (rec { formState = f rec.formState })
-
 instance showSlamDownState ∷ (Show a) ⇒ Show (SlamDownState a) where
   show (SlamDownState rec) = "(SlamDownState " <> show rec.formState <> ")"
-
-instance arbitrarySlamDownState ∷ (SCA.Arbitrary a, Ord a) ⇒ SCA.Arbitrary (SlamDownState a) where
-  arbitrary = do
-    document ← SCA.arbitrary
-    formState ← SM.fromFoldable <$> SCA.arbitrary :: Gen.Gen (L.List (Tuple String (FormFieldValue a)))
-    pure $ SlamDownState
-      { document : document
-      , formState : formState
-      }
-
--- | Gets the form field value, or the default if none is present.
-getFormFieldValue
-  ∷ ∀ v
-  . String
-  → SlamDownState v
-  → M.Maybe (FormFieldValue v)
-getFormFieldValue key state =
-  case SM.lookup key $ getFormState state of
-    M.Just x → M.Just x
-    M.Nothing → SM.lookup key <<< formStateFromDocument $ getDocument state
 
 formStateFromDocument ∷ SD.SlamDownP ~> SlamDownFormState
 formStateFromDocument =

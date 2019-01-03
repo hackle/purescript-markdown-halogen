@@ -16,13 +16,11 @@
     "package.json"
   ],
   "dependencies": {
-    "purescript-halogen-datepicker": "^1.0.0",
-    "purescript-browserfeatures": "^5.0.0",
-    "purescript-halogen": "^3.0.1",
-    "purescript-markdown": "^11.0.0",
-    "purescript-prelude": "^3.0.0",
-    "purescript-sets": "^3.0.0",
-    "purescript-strongcheck": "^3.1.0",
-    "purescript-validation": "^3.0.0"
+    "purescript-halogen": "^4.0.0",
+    "purescript-markdown": "^12.0.0",
+    "purescript-prelude": "^4.1.0",
+    "purescript-foreign-object": "^1.1.0",
+    "purescript-strongcheck": "^4.1.1",
+    "purescript-validation": "^4.0.0"
   }
 }

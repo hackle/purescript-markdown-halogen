@@ -6,7 +6,7 @@ import Control.Monad.Eff (Eff)
 
 import Data.Foldable (for_)
 import Data.Maybe (Maybe(..), maybe)
-import Data.StrMap as SM
+import Foreign.Object as SM
 
 import DOM.BrowserFeatures.Detectors (detectBrowserFeatures)
 
