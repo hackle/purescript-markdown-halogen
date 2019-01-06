@@ -12,15 +12,16 @@ import DOM.HTML.Indexed.StepValue (StepValue)
 import Data.Array as A
 import Data.Either.Nested (Either3)
 import Data.Foldable as F
-import Data.List as L
 import Data.Identity (Identity)
-import Data.String as S
+import Data.List as L
 import Data.Maybe as M
+import Data.String as S
 import Data.Traversable (traverse)
 import Halogen as H
 import Halogen.HTML as HH
 import Halogen.HTML.Core as HC
 import Halogen.HTML.Properties as HP
+import Text.Markdown.SlamDown (CodeBlockType(..))
 import Text.Markdown.SlamDown as SD
 import Text.Markdown.SlamDown.Halogen.Component.Query (SlamDownQuery(..)) as SDQ
 import Text.Markdown.SlamDown.Halogen.Component.State (FormFieldValue, SlamDownFormDesc, SlamDownFormState, SlamDownState(..), SlamDownStateR, emptySlamDownState, formDescFromDocument, formStateFromDocument, getDocument, replaceDocument, syncState) as SDS
@@ -109,8 +110,14 @@ renderSlamDown (SDS.SlamDownState state) =
             item ∷ FreshRenderer v m (L.List (SD.Block v))
             item bs = HH.li_ <$> renderBlocks bs
           el_ lt <$> traverse item (A.fromFoldable bss)
-        SD.CodeBlock _ ss →
-          pure $ HH.pre_ [ HH.code_ [ HH.text (S.joinWith "\n" $ A.fromFoldable ss) ] ]
+        SD.CodeBlock cbType ss →
+          pure $ HH.pre
+            [ HP.class_ $ HH.ClassName $
+                case cbType of
+                Indented -> ""
+                Fenced _ l -> "language-" <> l
+            ]
+            [ HH.code_ [ HH.text (S.joinWith "\n" $ A.fromFoldable ss) ] ]
         SD.LinkReference l url →
           pure $ HH.p_
             [ HH.text (l <> ": ")
